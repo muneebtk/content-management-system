@@ -54,3 +54,23 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, add_label):
         return True
+    
+class Blog(models.Model):
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    title = models.CharField(max_length=1000)
+    description = models.TextField()
+    image = models.ImageField(upload_to='blog_image/', null=True, blank=True)
+    liked_by = models.ManyToManyField(User, related_name="liked_contents", null=True, blank=True)
+    likes = models.IntegerField(default=0)
+    views = models.IntegerField(default=0)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class Comment(models.Model):
+    commented_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField()
+    content = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    created_time = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)

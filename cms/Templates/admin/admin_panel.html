@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block body %}
+<style>
+    .pointer{
+        cursor: pointer;
+    }
+</style>
+<div class="container-fluid mt-2">
+    <div class="alert alert-primary" id="alert" role="alert" style="display: none;"></div>
+
+    <table id="table" class="">
+        <thead>
+            <tr>
+                <th>S No</th>
+                <th>Created By</th>
+                <th>Title</th>
+                <th>Image</th>
+                <th>Likes</th>
+                <th>Created Time</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in blogs %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{i.created_by.first_name}} {{i.created_by.last_name}}</td>
+                <td><a href="/view_blog/{{i.id}}/">{{i.title}}</a></td>
+                <td><img src="{{i.image.url}}" alt="" class="w-1 h-1" style="width:70px;height: 40px;"></td>
+                <td>{{i.likes}}</td>
+                <td>{{i.created_time}}</td>
+                <td><a href="/view_blog/{{i.id}}/" style="text-decoration: none;"><h5 class="bi bi-pencil-square text-primary pointer"></h5></a></td>
+                <td><a id="delete" data-bs-toggle="" data-blog-id="{{i.id}}" onclick="popupModal('{{i.id}}')"
+                data-bs-target="#" style="text-decoration: none;"><h5 class="bi bi-trash3 text-danger pointer"></h5></a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModal"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Are You Sure?</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Do you want to delete the Blog?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteBlog()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // data table
+    let table = new DataTable('#table');
+
+    var bid = null
+    // popup modal 
+    function popupModal(id){
+        bid=id
+        $('#deleteConfirmationModal').modal('show')
+    }
+    // delete the selected blog 
+    function deleteBlog() {
+        var jwtToken = localStorage.getItem('access_token')
+        var headers = {
+            'Authorization': 'Bearer ' + jwtToken
+        };
+        $.ajax({
+            type: 'DELETE',
+            url: `/admin_panel/blogs/`,
+            headers: headers,
+            data:{'is_admin':true, 'id':bid},
+            success: function (response) {
+                $('#deleteConfirmationModal').modal('hide')
+                let alert = $('#alert')
+                alert.show()
+                alert.text(response.data.message)
+                if (response.data.status === 204) {
+                    alert.addClass('alert-success')
+                } else {
+                    alert.addClass('alert-danger')
+                }
+                setTimeout(() => {
+                    alert.hide()
+                    window.location.href = '/admin_panel/blogs/'
+                }, 5000);
+            },
+            error: function (response) {
+                $('#deleteConfirmationModal').modal('hide')
+                let alert = $('#alert')
+                alert.show()
+                alert.text('Something went wrong!')
+                alert.addClass('alert-danger')
+                setTimeout(() => {
+                    alert.hide()
+                }, 5000);
+            }
+        })
+        }
+</script>
+{% endblock body %}

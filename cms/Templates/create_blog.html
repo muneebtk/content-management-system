@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="w-50 mx-auto border p-3 mt-3">
+    <h2 class="text-center">Create Blog</h2>
+    <div class="alert alert-primary" id="alert" role="alert" style="display: none;"></div>
+
+    <form id="blog_form" method='POST' enctype="multipart/form-data">
+        <!-- {% csrf_token %} -->
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Title</label>
+            <input type="text" name="title" class="form-control" id="title" aria-describedby="">
+        </div>
+        <div class="mb-3">
+            <label for="" class="form-label">Description</label>
+            <textarea type="text" name="description" class="form-control" id="description"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="" class="form-label">Image</label><br>
+            {% comment %} <input type="image" name="file" class="" id=""> {% endcomment %}
+            <input type="file" name="image" id="image">
+        </div>
+        <div class="mx-auto">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</div>
+<script>
+    // blog form for add a new blog
+    $('#blog_form').submit(function (e) {
+        var jwtToken = localStorage.getItem('access_token');
+        e.preventDefault();
+        var formData = new FormData()
+        formData.append('title', $('#title').val())
+        formData.append('description', $('#description').val())
+        formData.append('image', $('#image')[0].files[0]);
+        var headers = {
+            'Authorization': 'Bearer ' + jwtToken
+        };
+        $.ajax({
+            type: 'POST',
+            data: formData,
+            url: '/blogs/',
+            headers:headers,
+            processData: false, // Prevent jQuery from processing the data
+            contentType: false,
+            success: function (response) {
+                let alert = $('#alert')
+                alert.show()
+                alert.text(response.data.message)
+                if (response.data.status===201){
+                    alert.addClass('alert-success')
+                }else{
+                    alert.addClass('alert-danger')
+                }
+                setTimeout(() => {
+                    alert.hide()
+                    window.location.href='/'
+                }, 5000);
+            },
+            error: function (response) {
+                let alert = $('#alert')
+                alert.show()
+                alert.text('Either you are blocked or something went wrong!')
+                alert.addClass('alert-danger')
+                setTimeout(() => {
+                    alert.hide()
+                    window.location.href='/user_login/'
+                }, 5000);
+            }
+        });
+    });
+
+</script>
+{% endblock %}

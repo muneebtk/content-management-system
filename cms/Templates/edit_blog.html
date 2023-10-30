@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block body %}
+{{blog.id}}==
+    <div class="w-50 mx-auto border p-3 mt-3">
+        <h2 class="text-center">Edit Blog</h2>
+        <div class="alert alert-primary" id="alert" role="alert" style="display: none;"></div>    
+        <form id="blog_form" method='POST' enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" id="title" aria-describedby="" value="{{blog.title}}">
+            </div>
+            <div class="mb-3">
+                <label for="" class="form-label">Description</label>
+                <textarea type="text" name="description" class="form-control" id="description">{{blog.description}}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="" class="form-label">Image</label><br>
+                <input type="file" name="image" id="image" value="{{blog.image}}">
+            </div>
+            <div class="mx-auto">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        // edit a blog by author or admin user
+        $('#blog_form').submit(function (e) {
+            e.preventDefault();
+            var jwtToken = localStorage.getItem('access_token');
+            var formData = new FormData()
+            formData.append('title', $('#title').val())
+            formData.append('description', $('#description').val())
+            formData.append('image', $('#image')[0].files[0]);
+            var headers = {
+                'Authorization': 'Bearer ' + jwtToken,
+                'X-CSRFToken': '{{csrf_token}}',
+            };
+            var id = '{{blog.id}}';
+            $.ajax({
+                type: 'POST',
+                data: formData,
+                url: `/edit_blog/${id}/`,
+                headers: headers,
+                processData: false, // Prevent jQuery from processing the data
+                contentType: false,
+                success: function (response) {
+                    let alert = $('#alert')
+                    alert.show()
+                    alert.text(response.data.message)
+                    if (response.data.status === 201) {
+                        alert.addClass('alert-success')
+                    } else {
+                        alert.addClass('alert-danger')
+                    }
+                    setTimeout(() => {
+                        alert.hide()
+                    }, 5000);
+                    window.location.href=`/view_blog/${id}/`
+                },
+                error: function (response) {
+                    let alert = $('#alert')
+                    alert.show()
+                    alert.text(response.data.message)
+                    alert.addClass('alert-danger')
+                    setTimeout(() => {
+                        alert.hide()
+                    }, 5000);
+                }
+                });
+            });
+    </script>
+{% endblock body %}

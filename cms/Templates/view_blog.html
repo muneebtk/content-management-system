@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jwt-decode/3.1.2/jwt-decode.min.js"></script>
+
+{% block body %}
+<style>
+    .like_button {
+        cursor: pointer;
+    }
+
+</style>
+<div>
+    <div class="card border w-50 mx-auto mt-3">
+        <img {% if blog.image %} src="{{blog.image.url}}" {% else %} src="" {% endif %} alt="blog image">
+        <div class="d-flex justify-content-between" id="modification" style="display: none;">
+            <div class="mr-auto">
+                {{blog.created_by.email}}
+            </div>
+            <div class="mr-3 like_button d-flex flex flex-direction-row" id="edit_delete">
+                <a href="/edit_blog/{{blog.id}}/" style="text-decoration: none;">
+                    <h3 class="bi bi-pencil-square text-primary like_button" id="edit"></h3>
+                </a>
+                <h4 class="bi bi-trash3 text-danger like_button" id="delete" data-bs-toggle="modal"
+                    data-bs-target="#deleteConfirmationModal"></h4>
+            </div>
+        </div>
+        <h3 class="">{{blog.title}}</h3>
+        <p>{{blog.description}}</p>
+        <div id="like_buttons" class="d-flex justify-content-center flex-direction-row">
+            <h2 class="bi bi-hand-thumbs-up{% if user_liked %}-fill liked{% else %} not_liked{% endif %}"
+                style="color: rgb(26, 75, 238); cursor: pointer;" onclick="like_action()" id="like_button" {% if not
+                user_liked %}style="display: block;" {% else %}style="display: none;" {% endif %}>
+            </h2><br>
+        </div>
+        <p id="number_of_likes" class="text-center">{{ likes }}</p>
+
+        <div class="d-flex py-auto ">
+            <h4 class="bi bi-eye" id="views"></h4>
+            <p>{{views}}</p>
+        </div>
+        <div class="card border p-2">
+            <form action="" method="POST" id="comment_form">
+                <div class="d-flex justify-content-center mt-3">
+                    <textarea name="comment" placeholder="Enter your comments" id="comment" class="form-control ml-3"
+                        cols="" rows=""></textarea>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary ml-auto mt-2">Submit</button>
+                </div>
+            </form>
+            <!-- Button trigger modal -->
+            <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Launch demo modal
+            </button> -->
+
+            <!-- Modal -->
+            <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModal"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Are You Sure?</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Do you want to delete the Blog?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-danger"
+                                onclick="deleteBlog('{{blog.id}}')">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end modal -->
+        </div>
+
+        {{request.user}}
+        <h5 class="ml-2">Comments : </h5>
+        <div class="m-2 comment_list">
+            {% if comments %}
+            {% for i in comments %}
+            <div class="card mb-2" id="comment_list p-2">
+                <div class="d-flex justify-content-between p-2">
+                    <p id="commented_by">{{i.commented_by.email}}</p>
+                    <p id="created_time">{{i.created_time}}</p>
+                </div>
+                <p id="user_comment" class="p-2">{% if i.is_active %}{{i.comment}}{% else %} Comment is blocked {% endif
+                    %}</p>
+            </div>
+            {% endfor %}
+            {% else %}
+            <!-- <div class="card" id="comment_list p-2" class="comment_list"></div> -->
+            No Comments Yet!
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // trigger when user click on like button
+    function like_action(e) {
+        var jwtToken = localStorage.getItem('access_token');
+        var headers = {
+            'Authorization': 'Bearer ' + jwtToken
+        };
+        var like_buttons = $('#like_buttons h2')
+        $.ajax({
+            type: 'POST',
+            data: { 'like': 1 },
+            url: '/view_blog/{{blog.id}}/',
+            headers: headers,
+            success: function (response) {
+                if (response.data.is_liked) {
+                    like_buttons.removeClass('bi-hand-thumbs-up')
+                    like_buttons.addClass('bi-hand-thumbs-up-fill')
+                } else {
+                    like_buttons.removeClass('bi-hand-thumbs-up-fill')
+                    like_buttons.addClass('bi-hand-thumbs-up')
+                }
+                $('#number_of_likes').text(response.data.likes)
+                $('#views').val(response.views)
+            },
+            error: function (response) {
+            }
+        })
+    }
+    $(document).ready(function () {
+        var jwtToken = localStorage.getItem('access_token');
+        var headers = {
+            'Authorization': 'Bearer ' + jwtToken
+        };
+        $.ajax({
+            url: '/view_blog/{{blog.id}}/',
+            type: 'GET',
+            headers: headers,
+            success: function (response) {
+            }
+        })
+    })
+    // for add a new comment
+    $('#comment_form').submit(function (e) {
+        e.preventDefault()
+        var formd = new FormData()
+        var comment = $('#comment').val()
+        formd.append('comment', comment)
+        var jwtToken = localStorage.getItem('access_token')
+        var headers = {
+            'Authorization': 'Bearer ' + jwtToken
+        };
+        $.ajax({
+            type: 'POST',
+            url: '/view_blog/{{blog.id}}/',
+            data: formd,
+            headers: headers,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                $('.comment_list').append(`
+                    <div class="comment_list">
+                        <div class="card p-2 mb-2" id="comment_list ">
+                            <div class="d-flex justify-content-between">
+                                <p>${response.data.comment.commented_by.email}</p>
+                                <p>${response.data.comment.created_time}</p>
+                            </div>
+                            <p>${response.data.comment.comment}</p>
+                        </div>
+                    </div>
+                `);
+            },
+            error: function (response) {
+            }
+        })
+    })
+    // decode jwt token to access payloads
+    var jwtToken = localStorage.getItem('access_token')
+    var base64Url = jwtToken.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var decodedPayload = JSON.parse(atob(base64));
+    var blog = '{{blog.created_by.email}}'
+    if (decodedPayload.email === blog || decodedPayload.is_admin) {
+        $('#edit').show()
+        $('#delete').show()
+    } else {
+        $('#edit').hide()
+        $('#delete').hide()
+    }
+    // delete a blog 
+    function deleteBlog(id) {
+        var jwtToken = localStorage.getItem('access_token')
+        var headers = {
+            'Authorization': 'Bearer ' + jwtToken
+        };
+        $.ajax({
+            type: 'DELETE',
+            url: `/view_blog/${id}`,
+            headers: headers,
+            success: function (response) {
+                if (response.data.is_admin) {
+                    window.location.href = '/admin_panel/'
+                }
+                window.location.href = '/'
+            },
+            error: function (response) {
+                if (response.data.is_admin) {
+                    window.location.href = '/admin_panel/'
+                }
+                window.location.href = '/'
+            }
+        })
+    }
+</script>
+
+{% endblock body %}

@@ -1,7 +1,56 @@
 {% extends 'base.html' %}
 {% block title %}{% endblock %}
 {% block body %}
-    home
-    
-    
+<style>
+
+</style>
+<div class="row mx-auto my-3 p-1">
+  {% for i in blogs %}
+  <div class="col-3 mb-3">
+    <a href="/view_blog/{{i.id}}/" class="" style="text-decoration: none;">
+      <div class="card" style="width: 18rem;">
+        {% if i.image %}
+        <img src="{{i.image.url}}" class="card-img-top image-container" style="object-fit: cover; height: 200px;"
+          alt="...">
+        {% else %}
+        No image available
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{i.title}}</h5>
+          <p class="card-text">{{i.description}}</p>
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  $(window).ready(function () {
+    $.ajax({
+      type: 'GET',
+      url: '/home/',
+      success: function (response) {
+      },
+      error: function (response) {
+      }
+    })
+  })
+  var jwtToken = localStorage.getItem('access_token');
+  var headers = {
+    'Authorization': 'Bearer ' + jwtToken
+  };
+  // function for view a blog individually
+  function view_blog(id) {
+    $.ajax({
+      type: 'GET',
+      url: `/view_blog/${id}/`,
+      headers: headers,
+      success: function (response) {
+
+      }
+    })
+  }
+</script>
+
 {% endblock %}

@@ -3,7 +3,7 @@
 {% block body %}
 <div class="w-50 mx-auto border p-3 mt-5">
     <h2 class="text-center">Login</h2>
-    <div class="alert alert-primary" id="alert" role="alert" style="display: none;">hhh</div>
+    <div class="alert alert-primary" id="alert" role="alert" style="display: none;"></div>
     <form id="login_form" method='POST'>
         <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">Email address</label>
@@ -18,34 +18,28 @@
 </div>
 
 <script>
+    // login form
     $('#login_form').submit(function (e) {
         e.preventDefault();
-        console.log('in func');
         let formData = $(this).serialize();
-        console.log(formData, 'form data')
         $.ajax({
             type: 'POST',
             data: formData,
             url: '/user/login/',
             success: function (response) {
-                console.log(response);
                 localStorage.setItem('access_token', response.access)
                 localStorage.setItem('refresh_token', response.refresh)
-                console.log()
                 window.location.href = '/'
             },
             error: function (response) {
-                console.log(response.status);
-                if (response.status===401){
-                    console.log('insides')
+                if (response.status === 401) {
                     let alert = $('#alert')
                     alert.show()
-                    alert.text('this is errror')
+                    alert.text('Something went wrong!')
                     alert.addClass('alert-danger')
                     setTimeout(() => {
                         alert.hide()
                     }, 5000);
-
                 }
             }
         });

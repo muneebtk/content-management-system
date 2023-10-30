@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="container-fluid mt-2">
+    <div class="alert alert-primary w-50 mx-auto" id="alert" role="alert" style="display: none;"></div>
+
+    <table id="table" class="">
+        <thead>
+            <tr>
+                <th>S No</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Joined Date</th>
+                <th>Block/Unblock</th>
+                {% comment %} <th>Edit</th>
+                <th>Delete</th> {% endcomment %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in users %}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{i.first_name}}</td>
+                <td>{{i.last_name}}</td>
+                <td>{{i.email}}</td>
+                <td>{{i.date_joined}}</td>
+                <td><button id="button_{{i.id}}" {% if i.is_active %} class="btn btn-outline-danger" value="unblocked" {% else %}
+                     class="btn btn-outline-success" value='blocked' {% endif %} onclick="blockOrUnblock('{{i.id}}', this.value)">{% if i.is_active %} Block {% else %} Unblock {% endif %}
+</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<script>
+    // data table 
+    let table = new DataTable('#table');
+    let jwtToken = localStorage.getItem('access_token')
+    var headers = {
+            'Authorization': 'Bearer ' + jwtToken
+        };
+    // to block or unblock a user   
+    function blockOrUnblock(id, status){
+        $.ajax({
+            type:'POST',
+            url:'/admin_panel/users/',
+            data:{'id':id, 'status':status},
+            headers:headers,
+            success:function(response){
+                if(response.data.status === 200){
+                    let button = $(`#button_${id}`)
+                    if(response.data.is_active){
+                        button.addClass('btn btn-outline-danger')
+                        button.text('Block')
+                        button.val('unblocked')
+                    }else{
+                        button.text('Unblock')
+                        button.val('blocked')
+                        button.removeClass('btn btn-outline-danger')
+                        button.addClass('btn btn-outline-success')
+                    }
+                    let alert = $('#alert')
+                    alert.show()
+                    alert.text(response.data.message)
+                    if (response.data.status === 200) {
+                        alert.addClass('alert-success')
+                    } else {
+                        alert.addClass('alert-danger')
+                    }
+                    setTimeout(() => {
+                        alert.hide()
+                    }, 5000);
+                }
+            },
+            error:function(response){
+            }
+        })
+    }
+</script>
+{% endblock body %}
