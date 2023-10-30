@@ -60,7 +60,7 @@ class Blog(models.Model):
     title = models.CharField(max_length=1000)
     description = models.TextField()
     image = models.ImageField(upload_to='blog_image/', null=True, blank=True)
-    liked_by = models.ManyToManyField(User, related_name="liked_contents", null=True, blank=True)
+    liked_by = models.ManyToManyField(User, related_name="liked_contents")
     likes = models.IntegerField(default=0)
     views = models.IntegerField(default=0)
     created_time = models.DateTimeField(auto_now_add=True)
