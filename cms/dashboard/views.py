@@ -228,14 +228,14 @@ def edit_blog(request, id):
 
 # admin page for see all blogs and he can edit or delete blogs
 class AdminPanel(APIView):
-    @is_admin
+
     def get(self, request):
         blogs = Blog.objects.all()
         context = {
             'blogs':blogs
         }
         return render(request, 'admin/admin_panel.html', context=context)
-    @is_admin
+
     def delete(self, request):
         id = request.data.get('id')
         context = {}
@@ -259,14 +259,14 @@ class AdminPanel(APIView):
 
 # All users list, only admin access and change the status of user( block or unblock ) 
 class AdminUsers(APIView):
-    @is_admin
+
     def get(self, request):
         users = User.objects.all()
         context = {
             'users':users
         }
         return render(request, 'admin/admin_users.html', context=context)
-    @is_admin
+
     def post(self, request):
         context = {}
         data = request.data
@@ -292,14 +292,13 @@ class AdminUsers(APIView):
 
 # admin can all blogs comments, and also he can block or approve  comments
 class AdminComments(APIView):
-    @is_admin
+
     def get(self, request):
         comments = Comment.objects.all()
         context = {
             'comments':comments,
         }
         return render(request, 'admin/admin_comments.html', context=context)
-    @is_admin
     def post(self, request):
         context = {}
         data = request.data
