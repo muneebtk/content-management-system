@@ -69,10 +69,9 @@
                     </div>
                     {% endif %}
                 </ul>
-                <div class="d-flex flex-direction-row">
-                    <div class="mr-2">
-
-                        <p id="user" class="mr-3"></p>
+                <div class="d-flex flex-direction-row align-items-center">
+                    <div class="mr-2 d-flssx my-auto ">
+                        <p id="user" class="mr-3 "></p>
                     </div>
                     <!-- <li class="nav-item ml-auto"> -->
                         <button class="btn btn-danger ml-3" onclick="logout()">
@@ -118,11 +117,13 @@
             $('.login').hide()
             $('.signup').hide()
         }
-        $('#user').text('User' + decodedPayload.email)
+        $('#user').text('User : ' + decodedPayload.email)
+        $('#user').addClass('font-weight-bold')
         if(decodedPayload.is_admin){
             $('#admin_links').show()
             $('#admin_links').addClass('d-flex flex-direction-row')
             $('#user').text('Admin : '+ decodedPayload.email)
+            $('#user').addClass('font-weight-bold')
         }else{
             $('#admin_links').hide()
         }
