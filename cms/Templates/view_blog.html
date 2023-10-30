@@ -84,8 +84,7 @@
                     <p id="commented_by">{{i.commented_by.email}}</p>
                     <p id="created_time">{{i.created_time}}</p>
                 </div>
-                <p id="user_comment" class="p-2">{% if i.is_active %}{{i.comment}}{% else %} Comment is blocked {% endif
-                    %}</p>
+                <p id="user_comment" class="p-2">{% if i.is_active %}{{i.comment}}{% else %} Comment is blocked {% endif %}</p>
             </div>
             {% endfor %}
             {% else %}
