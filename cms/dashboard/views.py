@@ -1,6 +1,4 @@
 
-from rest_framework_jwt.serializers import JSONWebTokenSerializer
-from rest_framework_jwt.views import ObtainJSONWebToken
 from django.shortcuts import render, redirect
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
