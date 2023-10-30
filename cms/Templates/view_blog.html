@@ -27,8 +27,7 @@
         <p>{{blog.description}}</p>
         <div id="like_buttons" class="d-flex justify-content-center flex-direction-row">
             <h2 class="bi bi-hand-thumbs-up{% if user_liked %}-fill liked{% else %} not_liked{% endif %}"
-                style="color: rgb(26, 75, 238); cursor: pointer;" onclick="like_action()" id="like_button" {% if not
-                user_liked %}style="display: block;" {% else %}style="display: none;" {% endif %}>
+                style="color: rgb(26, 75, 238); cursor: pointer;" onclick="like_action()" id="like_button" {% if not user_liked %}style="display: block;" {% else %}style="display: none;" {% endif %}>
             </h2><br>
         </div>
         <p id="number_of_likes" class="text-center">{{ likes }}</p>
