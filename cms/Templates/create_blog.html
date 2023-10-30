@@ -5,6 +5,9 @@
     <h2 class="text-center">Create Blog</h2>
     <div class="alert alert-primary" id="alert" role="alert" style="display: none;"></div>
 
+        <div class="spinner-border text-primary text-center ml-5" role="status" id="spinner" style="display: none;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     <form id="blog_form" method='POST' enctype="multipart/form-data">
         <!-- {% csrf_token %} -->
         <div class="mb-3">
@@ -37,6 +40,7 @@
         var headers = {
             'Authorization': 'Bearer ' + jwtToken
         };
+        $('#spinner').show()
         $.ajax({
             type: 'POST',
             data: formData,
@@ -45,6 +49,7 @@
             processData: false, // Prevent jQuery from processing the data
             contentType: false,
             success: function (response) {
+                $('#spinner').hide()
                 let alert = $('#alert')
                 alert.show()
                 alert.text(response.data.message)
@@ -59,6 +64,7 @@
                 }, 5000);
             },
             error: function (response) {
+                $('#spinner').hide()
                 let alert = $('#alert')
                 alert.show()
                 alert.text('Either you are blocked or something went wrong!')
