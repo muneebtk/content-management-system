@@ -26,4 +26,4 @@ A full-stack Content Management System built with **Django REST Framework (DRF)*
 1. Clone the repository:  
    ```bash
    git clone https://github.com/your-username/content-management-system.git
-   cd content-management-system/backend
+   cd content-management-system
